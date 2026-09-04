@@ -1,0 +1,37 @@
+services:
+  odoo:
+    image: odoo:17.0
+    container_name: odoo
+    restart: unless-stopped
+
+    # Odoo solo escucha en localhost: el Nginx del HOST es el único punto de
+    # entrada público. No exponer nunca 0.0.0.0:8069.
+    ports:
+      - "127.0.0.1:8069:8069"
+
+    # Permite al contenedor resolver el Postgres que corre en el HOST (fuera
+    # de Docker) sin necesidad de --network host ni de conocer la IP fija del
+    # bridge. "host-gateway" es la puerta de enlace del bridge por defecto de
+    # Docker (normalmente 172.17.0.1).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    # Credenciales/host de Postgres via variables de entorno soportadas de
+    # forma nativa por el entrypoint oficial de la imagen odoo (HOST, PORT,
+    # USER, PASSWORD). Así el password NUNCA vive en config/odoo/odoo.conf.
+    env_file:
+      - .env
+
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./config/odoo/odoo.conf:/etc/odoo/odoo.conf:ro
+      - ./addons:/mnt/extra-addons
+
+    # Límites de memoria "clásicos" (no deploy.resources.limits, que Compose
+    # solo aplica en modo Swarm y aquí se ignoraría silenciosamente).
+    mem_limit: 700m
+    mem_reservation: 400m
+
+volumes:
+  odoo-data:
+    name: odoo-data

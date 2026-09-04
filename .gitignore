@@ -1,0 +1,12 @@
+# Secretos / configuración local
+.env
+
+# Logs
+*.log
+
+# Backups que puedan generar los scripts de setup (pg_hba.conf.bak.*, etc.)
+*.bak.*
+
+# Sistema
+.DS_Store
+Thumbs.db
